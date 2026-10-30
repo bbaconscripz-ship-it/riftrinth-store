@@ -57,6 +57,24 @@
       ]
     },
     {
+  "id": "skybox-changer",
+  "name": "Skybox Changer",
+  "creator": "CREATOR",
+  "version": "1.0.0",
+  "summary": "Changes the skybox",
+  "description": "Changes the skybox",
+  "tags": ["visuals"],
+  "updated": "2026-10-30T00:00:00Z",
+  "files": [
+    {
+      "name": "skybox-changer.zip",
+      "url": "mods/skybox-changer/skybox-changer.zip",
+      "bytes": 0,
+      "sha256": "FILL_IN"
+        }
+      ]
+    },
+    {
       "id": "no-speedcap",
       "name": "No Speedcap",
       "creator": "MeiMei",
