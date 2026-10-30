@@ -1,16 +1,16 @@
 {
   "name": "Stripes Mod Store",
-  "updated": "2026-10-30T23:04:03Z",
+  "updated": "2026-10-30T23:07:56Z",
   "mods": [
     {
       "id": "robot-playermodel",
       "name": "Robot Playermodel",
-      "creator": "stripesvr",
+      "creator": "MeiMei",
       "version": "1.0.0",
-      "summary": "credits to MeiMei",
-      "description": "credits to MeiMei",
+      "summary": "By MeiMei",
+      "description": "By MeiMei",
       "tags": [],
-      "updated": "2026-10-30T23:04:03Z",
+      "updated": "2026-10-30T23:07:56Z",
       "files": [
         {
           "name": "robot-playermodel.zip",
