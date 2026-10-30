@@ -1,6 +1,6 @@
 {
   "name": "Stripes Mod Store",
-  "updated": "2026-10-30T23:09:32Z",
+  "updated": "2026-10-30T23:10:35Z",
   "mods": [
     {
       "id": "robot-playermodel",
@@ -35,6 +35,24 @@
           "url": "mods/backflip-mod/backflip-mod.zip",
           "bytes": 23729,
           "sha256": "5d0a0e82ad89aa444ab531aecca9913970b9704c317304bce680c8cdf3768bc1"
+        }
+      ]
+    },
+    {
+      "id": "no-speedcap",
+      "name": "No Speedcap",
+      "creator": "MeiMei",
+      "version": "1.0.0",
+      "summary": "makes the speed cap infinite, go as fast as you want",
+      "description": "makes the speed cap infinite, go as fast as you want",
+      "tags": [],
+      "updated": "2026-10-30T23:10:35Z",
+      "files": [
+        {
+          "name": "no-speedcap.zip",
+          "url": "mods/no-speedcap/no-speedcap.zip",
+          "bytes": 28692,
+          "sha256": "667cc211df28718d1d2f8387938ca74d592b353550f260474eebd7b12f5c5942"
         }
       ]
     }
