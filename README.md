@@ -22,4 +22,4 @@ Only add mods you made or have the creator's permission to share. The repository
 python add_mod.py "C:\path\to\MyMod" --name "My Mod" --creator stripesvr --version 1.0.0 --summary "What it does" --tags visuals,fun
 ```
 
-The folder needs a matching `.utoc`, `.ucas` and `.pak`. Run the command again with the same name to update a mod, then push the changes.
+The folder or `.zip` needs a matching `.utoc`, `.ucas` and `.pak`. Run it from your clone of this repository, since it writes `mods/` and `manifest.json` next to itself. Run the command again with the same name to update a mod, then push the changes.

@@ -2,7 +2,7 @@
 """Adds a mod to this store: zips its patch files and updates manifest.json.
 
 Example:
-  python add_mod.py "C:\\path\\to\\MyMod" --name "My Mod" --creator stripesvr --version 1.0.0 --summary "What it does" --tags visuals,fun
+  python add_mod.py "C:\\path\\to\\MyMod"  (a folder or a .zip) --name "My Mod" --creator stripesvr --version 1.0.0 --summary "What it does" --tags visuals,fun
 
 The folder must contain a matching .utoc, .ucas and .pak. Only add mods you made or have permission to share.
 """
@@ -11,6 +11,7 @@ import hashlib
 import json
 import re
 import sys
+import tempfile
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,7 +23,7 @@ GITHUB_LIMIT = 100 * 1024 * 1024  # GitHub rejects larger single files
 
 def main():
     ap = argparse.ArgumentParser(description="Add a mod to this store.")
-    ap.add_argument("folder", type=Path, help="folder holding the .utoc, .ucas and .pak")
+    ap.add_argument("folder", type=Path, help="folder or .zip holding the .utoc, .ucas and .pak")
     ap.add_argument("--name", required=True)
     ap.add_argument("--creator", required=True)
     ap.add_argument("--version", default="1.0.0")
@@ -36,8 +37,21 @@ def main():
     if not re.fullmatch(r"[A-Za-z0-9][\w.\-]{0,79}", mod_id):
         sys.exit(f"'{mod_id}' is not a usable id. Pass one with --id using letters, numbers, dots or dashes.")
 
+    if not a.folder.exists():
+        sys.exit(f"{a.folder} does not exist.")
+    tmp = None
+    if a.folder.is_file():
+        if a.folder.suffix.lower() != ".zip":
+            sys.exit("Pass a folder or a .zip holding the .utoc, .ucas and .pak.")
+        tmp = tempfile.TemporaryDirectory()
+        with zipfile.ZipFile(a.folder) as z:
+            z.extractall(tmp.name)
+        files = Path(tmp.name).rglob("*")
+    else:
+        files = a.folder.iterdir()
+
     stems = {}
-    for f in a.folder.iterdir():
+    for f in files:
         if f.is_file() and f.suffix.lower() in (".utoc", ".ucas", ".pak"):
             stems.setdefault(f.stem, {})[f.suffix.lower()] = f
     complete = {s: fs for s, fs in stems.items() if len(fs) == 3}
@@ -51,9 +65,13 @@ def main():
         for fs in complete.values():
             for f in fs.values():
                 z.write(f, f.name)
+    if tmp:
+        tmp.cleanup()
     data = archive.read_bytes()
     if len(data) > GITHUB_LIMIT:
         archive.unlink()
+        if tmp:
+            tmp.cleanup()
         sys.exit("The zip is over GitHub's 100 MB file limit, so it can't be hosted here.")
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
