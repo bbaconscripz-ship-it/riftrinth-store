@@ -39,6 +39,24 @@
       ]
     },
     {
+  "id": "reward-shower",
+  "name": "Reward Shower",
+  "creator": "5T4RL16HT",
+  "version": "2",
+  "summary": "Driftium Shower",
+  "description": "Driftium Shower",
+  "tags": ["effects", "rewards"],
+  "updated": "2026-10-30T23:15:59Z",
+  "files": [
+    {
+      "name": "reward-shower.zip",
+      "url": "mods/cdn-rewardshower.zip",
+      "bytes": 28911,
+      "sha256": "2a5284be2b7139106a5959e883b35d35db56c1b64ca9d3029b52bf7142ecca79"
+        }
+      ]
+    },
+    {
       "id": "no-speedcap",
       "name": "No Speedcap",
       "creator": "MeiMei",
