@@ -1,6 +1,6 @@
 {
   "name": "Stripes Mod Store",
-  "updated": "2026-10-30T23:07:56Z",
+  "updated": "2026-10-30T23:09:32Z",
   "mods": [
     {
       "id": "robot-playermodel",
@@ -17,6 +17,24 @@
           "url": "mods/robot-playermodel/robot-playermodel.zip",
           "bytes": 508995,
           "sha256": "91ee32369d36a9b301f579930933901e3d8f3c32e9adc973bc3af391b4e34911"
+        }
+      ]
+    },
+    {
+      "id": "backflip-mod",
+      "name": "Backflip Mod",
+      "creator": "MeiMei",
+      "version": "1.0.0",
+      "summary": "Makes you do backflip",
+      "description": "Makes you do backflip",
+      "tags": [],
+      "updated": "2026-10-30T23:09:32Z",
+      "files": [
+        {
+          "name": "backflip-mod.zip",
+          "url": "mods/backflip-mod/backflip-mod.zip",
+          "bytes": 23729,
+          "sha256": "5d0a0e82ad89aa444ab531aecca9913970b9704c317304bce680c8cdf3768bc1"
         }
       ]
     }
