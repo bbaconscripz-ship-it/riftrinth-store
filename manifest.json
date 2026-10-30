@@ -1,6 +1,6 @@
 {
   "name": "Stripes Mod Store",
-  "updated": "2026-10-30T23:10:35Z",
+  "updated": "2026-10-30T23:34:38Z",
   "mods": [
     {
       "id": "robot-playermodel",
@@ -39,38 +39,23 @@
       ]
     },
     {
-  "id": "reward-shower",
-  "name": "Reward Shower",
-  "creator": "5T4RL16HT",
-  "version": "2",
-  "summary": "Driftium Shower",
-  "description": "Driftium Shower",
-  "tags": ["effects", "rewards"],
-  "updated": "2026-10-30T23:15:59Z",
-  "files": [
-    {
-      "name": "reward-shower.zip",
-      "url": "mods/cdn-rewardshower.zip",
-      "bytes": 28911,
-      "sha256": "2a5284be2b7139106a5959e883b35d35db56c1b64ca9d3029b52bf7142ecca79"
-        }
-      ]
-    },
-    {
-  "id": "skybox-changer",
-  "name": "Skybox Changer",
-  "creator": "CREATOR",
-  "version": "1.0.0",
-  "summary": "Changes the skybox",
-  "description": "Changes the skybox",
-  "tags": ["visuals"],
-  "updated": "2026-10-30T00:00:00Z",
-  "files": [
-    {
-      "name": "skybox-changer.zip",
-      "url": "mods/cdn-a2_skyswap_v2_corrected.zip",
-      "bytes": 0,
-      "sha256": "FILL_IN"
+      "id": "reward-shower",
+      "name": "Reward Shower",
+      "creator": "5T4RL16HT",
+      "version": "2",
+      "summary": "Driftium Shower",
+      "description": "Driftium Shower",
+      "tags": [
+        "effects",
+        "rewards"
+      ],
+      "updated": "2026-10-30T23:15:59Z",
+      "files": [
+        {
+          "name": "reward-shower.zip",
+          "url": "mods/cdn-rewardshower.zip",
+          "bytes": 28911,
+          "sha256": "2a5284be2b7139106a5959e883b35d35db56c1b64ca9d3029b52bf7142ecca79"
         }
       ]
     },
@@ -89,6 +74,27 @@
           "url": "mods/no-speedcap/no-speedcap.zip",
           "bytes": 28692,
           "sha256": "667cc211df28718d1d2f8387938ca74d592b353550f260474eebd7b12f5c5942"
+        }
+      ]
+    },
+    {
+      "id": "skybox-changer",
+      "name": "Skybox Changer",
+      "creator": "MeiMei",
+      "version": "1.0.0",
+      "summary": "Swaps the skybox for the OpenEA one.",
+      "description": "Swaps the skybox for the OpenEA one.",
+      "tags": [
+        "skybox",
+        "visuals"
+      ],
+      "updated": "2026-10-30T23:34:38Z",
+      "files": [
+        {
+          "name": "skybox-changer.zip",
+          "url": "mods/skybox-changer/skybox-changer.zip",
+          "bytes": 13057,
+          "sha256": "663a9a7cefa2eaa0960199b5cee61c594bf3969d158a253498b9f9df16bd1e46"
         }
       ]
     }
