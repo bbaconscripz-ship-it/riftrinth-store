@@ -1,6 +1,6 @@
 {
   "name": "Stripes Mod Store",
-  "updated": "2026-10-30T23:35:08Z",
+  "updated": "2026-10-31T01:15:11Z",
   "mods": [
     {
       "id": "robot-playermodel",
@@ -78,26 +78,6 @@
       ]
     },
     {
-      "id": "meimei-client",
-      "name": "MeiMei Client Mod Menu",
-      "creator": "MeiMei",
-      "version": "7.0",
-      "summary": "Mod menu for orion drift",
-      "description": "Mod menu for orion drift",
-      "tags": [
-        "mod menu",
-      ],
-      "updated": "2026-10-30T23:34:38Z",
-      "files": [
-        {
-          "name": "MeiMeiClientOS.zip.zip",
-          "url": "mods/MeiMeiClientOS.zip.zip",
-          "bytes": 508396,
-          "sha256": "none"
-        }
-      ]
-    },
-    {
       "id": "reward-shower",
       "name": "Reward Shower",
       "creator": "5T4RL16HT",
@@ -115,6 +95,26 @@
           "url": "mods/reward-shower/reward-shower.zip",
           "bytes": 28843,
           "sha256": "48df850a75db6fa72352a9ecfce2f7aec6b50fd5608cd81ec65f630813f8faab"
+        }
+      ]
+    },
+    {
+      "id": "meimei-client",
+      "name": "MeiMei Client Mod Menu",
+      "creator": "MeiMei",
+      "version": "7.0",
+      "summary": "Mod menu for orion drift",
+      "description": "Mod menu for orion drift",
+      "tags": [
+        "mod menu"
+      ],
+      "updated": "2026-10-31T01:15:11Z",
+      "files": [
+        {
+          "name": "meimei-client.zip",
+          "url": "mods/meimei-client/meimei-client.zip",
+          "bytes": 500974,
+          "sha256": "317b420a2862288dbf854d9fe9941d0dfb25fd6704bda26893d6ca530fe5ffd3"
         }
       ]
     }
