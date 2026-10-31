@@ -78,6 +78,26 @@
       ]
     },
     {
+      "id": "meimei-client",
+      "name": "MeiMei Client Mod Menu",
+      "creator": "MeiMei",
+      "version": "7.0",
+      "summary": "Mod menu for orion drift",
+      "description": "Mod menu for orion drift",
+      "tags": [
+        "mod menu",
+      ],
+      "updated": "2026-10-30T23:34:38Z",
+      "files": [
+        {
+          "name": "MeiMeiClientOS.zip.zip",
+          "url": "mods/MeiMeiClientOS.zip.zip",
+          "bytes": 508396,
+          "sha256": "none"
+        }
+      ]
+    },
+    {
       "id": "reward-shower",
       "name": "Reward Shower",
       "creator": "5T4RL16HT",
