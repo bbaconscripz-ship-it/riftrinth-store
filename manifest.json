@@ -1,6 +1,6 @@
 {
   "name": "Stripes Mod Store",
-  "updated": "2026-10-31T01:15:11Z",
+  "updated": "2026-10-31T02:01:28Z",
   "mods": [
     {
       "id": "robot-playermodel",
@@ -108,13 +108,13 @@
       "tags": [
         "mod menu"
       ],
-      "updated": "2026-10-31T01:15:11Z",
+      "updated": "2026-10-31T02:01:28Z",
       "files": [
         {
-          "name": "MeiMei_Client.zip",
-          "url": "mods/meimei_client.zip",
-          "bytes": 500974,
-          "sha256": "317b420a2862288dbf854d9fe9941d0dfb25fd6704bda26893d6ca530fe5ffd3"
+          "name": "meimei-client.zip",
+          "url": "mods/meimei-client/meimei-client.zip",
+          "bytes": 500951,
+          "sha256": "3adbf155dac631dbc45c9ab6e6178f231375a7b2ac388ca6773f3df4e2f43849"
         }
       ]
     }
