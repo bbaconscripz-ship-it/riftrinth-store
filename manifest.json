@@ -112,7 +112,7 @@
       "files": [
         {
           "name": "meimei-client.zip",
-          "url": "mods/meimei-client.zip",
+          "url": "mods/meimei_client.zip",
           "bytes": 500974,
           "sha256": "317b420a2862288dbf854d9fe9941d0dfb25fd6704bda26893d6ca530fe5ffd3"
         }
