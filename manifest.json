@@ -81,26 +81,6 @@
       ]
     },
     {
-      "id": "meimei-client",
-      "name": "MeiMei Client Mod Menu",
-      "creator": "MeiMei",
-      "version": "7.1",
-      "summary": "Mod menu for orion drift",
-      "description": "Mod menu for orion drift",
-      "tags": [
-        "mod menu"
-      ],
-      "updated": "2026-10-31T02:01:28Z",
-      "files": [
-        {
-          "name": "meimei-client.zip",
-          "url": "mods/meimei-client/meimei-client.zip",
-          "bytes": 500951,
-          "sha256": "3adbf155dac631dbc45c9ab6e6178f231375a7b2ac388ca6773f3df4e2f43849"
-        }
-      ]
-    },
-    {
       "id": "Driftrinth-Client",
       "name": "Driftrinth Client",
       "creator": "VirtualStripes",
