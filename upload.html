@@ -3,84 +3,97 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0b0d">
 <meta name="robots" content="noindex">
 <title>Publish a Mod</title>
+<link rel="icon" href="https://stripes.lol/assets/img/151.png">
+<!-- Shared look from stripes.lol; the rules below only add the form pieces it doesn't have. -->
+<link rel="stylesheet" href="https://stripes.lol/assets/css/styles.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-  :root { --bg:#16171b; --panel:#1f2026; --field:#2a2b33; --line:#34353e; --text:#f1f1f4; --muted:#9a9aa6; --accent:#4f8cff; --ok:#3ecf8e; --bad:#ff6b6b; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width:720px; margin:0 auto; padding:32px 16px 64px; }
-  h1 { font-size:26px; margin:0 0 4px; }
-  h2 { font-size:17px; margin:0 0 12px; }
-  p.sub { color:var(--muted); margin:0 0 24px; }
-  section { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:16px; }
-  label { display:block; font-size:13px; color:var(--muted); margin:12px 0 4px; }
-  input, textarea { width:100%; background:var(--field); color:var(--text); border:1px solid var(--line); border-radius:9px; padding:10px 12px; font:inherit; }
-  textarea { min-height:90px; resize:vertical; }
-  .row { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; }
-  @media (max-width:560px) { .row { grid-template-columns:1fr; } }
-  .drop { border:2px dashed var(--line); border-radius:12px; padding:28px 12px; text-align:center; color:var(--muted); cursor:pointer; }
-  .drop.over { border-color:var(--accent); color:var(--text); }
+  :root { --bg:#0b0b0d; --surface:#121216; --surface-raised:#17171c; --border:#22222a; --border-strong:#32323d; --text:#ededf0; --text-muted:#9a9aa6; --text-faint:#5f5f6b; --accent:#ff4d55; --accent-hover:#ff6a70; --ok:#6fcf8f; --radius-sm:10px; --radius-lg:18px; --font-sans:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; --font-mono:ui-monospace, Consolas, monospace; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-sans); margin:0; }
+  .stack { display:flex; flex-direction:column; gap:14px; }
+  .card h2 { margin:0; font-size:1rem; font-weight:600; }
+  label { display:block; font-size:0.8125rem; color:var(--text-muted); margin:12px 0 6px; }
+  input, textarea { width:100%; box-sizing:border-box; background:#0c0c0f; color:var(--text); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; font:inherit; font-size:0.9375rem; transition:border-color .2s ease; }
+  input:focus, textarea:focus { outline:none; border-color:var(--border-strong); }
+  textarea { min-height:96px; resize:vertical; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; }
+  @media (max-width:560px) { .row2 { grid-template-columns:1fr; } }
+  .drop { border:1px dashed var(--border-strong); border-radius:var(--radius-sm); padding:26px 12px; text-align:center; color:var(--text-muted); font-size:0.875rem; cursor:pointer; transition:border-color .2s ease, background-color .2s ease; }
+  .drop:hover, .drop.over { border-color:var(--accent); background:rgba(255,77,85,.05); color:var(--text); }
   .drop strong { color:var(--text); }
-  button { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:11px 18px; font:600 15px system-ui, sans-serif; cursor:pointer; }
-  button.ghost { background:transparent; border:1px solid var(--line); color:var(--text); }
-  button:disabled { opacity:.5; cursor:default; }
-  .actions { display:flex; gap:10px; align-items:center; margin-top:16px; flex-wrap:wrap; }
-  #log { white-space:pre-wrap; font:13px ui-monospace, Consolas, monospace; color:var(--muted); margin-top:12px; }
-  .ok { color:var(--ok); } .bad { color:var(--bad); }
+  .actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:4px; }
+  .btn:disabled { opacity:.5; cursor:default; }
+  .hint { font-size:0.8125rem; color:var(--text-muted); margin:0; }
+  #log { white-space:pre-wrap; font:0.8125rem/1.6 var(--font-mono); color:var(--text-muted); }
+  #log:empty { display:none; }
+  .ok { color:var(--ok); } .bad { color:var(--accent); }
   ul.mods { list-style:none; margin:0; padding:0; }
-  ul.mods li { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-top:1px solid var(--line); }
-  ul.mods li:first-child { border-top:0; }
-  ul.mods small { color:var(--muted); }
-  ul.mods button { padding:6px 12px; font-size:13px; }
-  .hint { font-size:13px; color:var(--muted); }
-  a { color:var(--accent); }
+  ul.mods li { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 0; border-top:1px solid var(--border); }
+  ul.mods li:first-child { border-top:0; padding-top:0; }
+  ul.mods li > div > div { font-weight:600; font-size:0.9375rem; }
+  ul.mods small { color:var(--text-muted); font-size:0.8125rem; }
+  ul.mods .btn { height:34px; padding:0 12px; font-size:0.8125rem; }
 </style>
 </head>
 <body>
-<main>
-  <h1>Publish a Mod</h1>
-  <p class="sub">Upload a mod zip, fill in its details, and it goes live in the store.</p>
+<div class="page">
+  <nav class="topbar">
+    <a class="back" href="https://stripes.lol/driftrinth.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 6-6 6 6 6"/></svg>Driftrinth</a>
+  </nav>
 
-  <section id="auth">
-    <h2>Password</h2>
-    <input id="password" type="password" placeholder="Upload password" autocomplete="current-password">
-    <div class="actions">
-      <button id="login" class="ghost">Unlock</button>
-      <span id="authStatus" class="hint"></span>
-    </div>
-  </section>
+  <header class="header">
+    <p class="eyebrow">Driftrinth mod store</p>
+    <h1 class="title">Publish a Mod</h1>
+  </header>
 
-  <section>
-    <h2>New mod or update</h2>
-    <div id="drop" class="drop"><strong>Drop a .zip here</strong> or click to choose<br><span id="fileInfo">It needs a matching .utoc, .ucas and .pak</span></div>
-    <input id="file" type="file" accept=".zip" hidden>
-    <div class="row">
-      <div><label for="name">Name</label><input id="name" placeholder="My Mod"></div>
-      <div><label for="creator">Creator</label><input id="creator" placeholder="MeiMei"></div>
-    </div>
-    <div class="row">
-      <div><label for="version">Version</label><input id="version" value="1.0.0"></div>
-      <div><label for="tags">Tags (comma separated)</label><input id="tags" placeholder="visuals, fun"></div>
-    </div>
-    <label for="summary">Description (short, shown on the card)</label>
-    <input id="summary" placeholder="What it does">
-    <label for="about">About (longer, shown on the mod page)</label>
-    <textarea id="about" placeholder="Details, credits, how to use it"></textarea>
-    <p class="hint">Using the same name as an existing mod updates it instead of adding a second one.</p>
-    <div class="actions">
-      <button id="publish">Release</button>
-      <span id="status" class="hint"></span>
-    </div>
-    <div id="log"></div>
-  </section>
+  <main class="stack">
+    <section class="card" id="auth">
+      <h2>Password</h2>
+      <input id="password" type="password" placeholder="Upload password" autocomplete="current-password" aria-label="Upload password">
+      <div class="actions">
+        <button id="login" class="btn">Unlock</button>
+        <span id="authStatus" class="hint"></span>
+      </div>
+    </section>
 
-  <section>
-    <h2>In the store</h2>
-    <ul id="mods" class="mods"><li><small>Unlock to load the list.</small></li></ul>
-  </section>
-</main>
+    <section class="card">
+      <h2>New mod or update</h2>
+      <div id="drop" class="drop"><strong>Drop a .zip here</strong> or click to choose<br><span id="fileInfo">It needs a matching .utoc, .ucas and .pak</span></div>
+      <input id="file" type="file" accept=".zip" hidden>
+      <div>
+        <div class="row2">
+          <div><label for="name">Name</label><input id="name" placeholder="My Mod"></div>
+          <div><label for="creator">Creator</label><input id="creator" placeholder="MeiMei"></div>
+        </div>
+        <div class="row2">
+          <div><label for="version">Version</label><input id="version" value="1.0.0"></div>
+          <div><label for="tags">Tags (comma separated)</label><input id="tags" placeholder="visuals, fun"></div>
+        </div>
+        <label for="summary">Description (short, shown on the card)</label>
+        <input id="summary" placeholder="What it does">
+        <label for="about">About (longer, shown on the mod page)</label>
+        <textarea id="about" placeholder="Details, credits, how to use it"></textarea>
+      </div>
+      <p class="hint">Using the same name as an existing mod updates it instead of adding a second one.</p>
+      <div class="actions">
+        <button id="publish" class="btn btn-primary">Release</button>
+        <span id="status" class="hint"></span>
+      </div>
+      <div id="log"></div>
+    </section>
+
+    <section class="card">
+      <h2>In the store</h2>
+      <ul id="mods" class="mods"><li><small>Unlock to load the list.</small></li></ul>
+    </section>
+  </main>
+
+  <footer class="footer">stripes.lol</footer>
+</div>
 
 <script>
 // Uploads go through the store's Cloudflare Worker, which checks the password
@@ -115,7 +128,7 @@ function renderMods() {
     info.firstChild.textContent = m.name;
     info.lastChild.textContent = `v${m.version} by ${m.creator}`;
     const btn = document.createElement("button");
-    btn.className = "ghost"; btn.textContent = "Update";
+    btn.className = "btn btn-ghost"; btn.textContent = "Update";
     btn.onclick = () => {
       $("name").value = m.name; $("creator").value = m.creator; $("version").value = m.version;
       $("tags").value = (m.tags || []).join(", "); $("summary").value = m.summary || "";
