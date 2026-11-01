@@ -2,6 +2,14 @@
 
 A mod store for [Driftrinth](https://github.com/stripesvr), hosted free on GitHub Pages.
 
+## Links
+
+- **Store address** (enter in Driftrinth under **Settings > Mod store**): https://driftshop.stripes.lol/
+- **Upload page:** https://driftshop.stripes.lol/upload.html
+- **Manifest:** https://driftshop.stripes.lol/manifest.json
+
+Until the `driftshop.stripes.lol` DNS is set up, use https://stripesvr.github.io/riftrinth-store/ (and add `upload.html` or `manifest.json` to it).
+
 ## Publish it
 
 The store files (`manifest.json`, `add_mod.py`, this README, `.nojekyll` and the `mods/` folder) live at the root of the `stripesvr/riftrinth-store` repository.
