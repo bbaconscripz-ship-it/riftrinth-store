@@ -1,6 +1,6 @@
 {
   "name": "Stripes Mod Store",
-  "updated": "2026-11-01T05:12:22Z",
+  "updated": "2026-11-01T14:44:42Z",
   "mods": [
     {
       "id": "robot-playermodel",
@@ -95,6 +95,24 @@
           "url": "mods/Driftrinth-Client/Driftrinth-Client.zip",
           "bytes": 353175,
           "sha256": "142ecd0d6dbcc2ec2303f802c92f573745921009d2aa3fa4ef9c93e73b042fb2"
+        }
+      ]
+    },
+    {
+      "id": "tyougurt",
+      "name": "tyougurt",
+      "creator": "tyougurt",
+      "version": "1.0.0",
+      "summary": "tyougurt",
+      "description": "tyougurt",
+      "tags": [],
+      "updated": "2026-11-01T14:44:42Z",
+      "files": [
+        {
+          "name": "tyougurt.zip",
+          "url": "mods/tyougurt/tyougurt.zip",
+          "bytes": 296,
+          "sha256": "5eaffd281b535886f2f638e0d6285209addbaaf014df51ca1d12f0d5c35a579f"
         }
       ]
     }
