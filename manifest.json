@@ -21,20 +21,20 @@
       ]
     },
     {
-      "id": "backflip-mod",
-      "name": "Backflip Mod",
-      "creator": "MeiMei",
-      "version": "1.0.0",
-      "summary": "Makes you do backflip",
-      "description": "Makes you do backflip",
+      "id": "Driftrinth-Client",
+      "name": "Driftrinth Client",
+      "creator": "VirtualStripes",
+      "version": "4.3",
+      "summary": "Le Best Mod Menu For Orion Drift",
+      "description": "Best mod menu for OD of all time.",
       "tags": [],
-      "updated": "2026-10-30T23:09:32Z",
+      "updated": "2026-10-31T23:09:32Z",
       "files": [
         {
-          "name": "backflip-mod.zip",
-          "url": "mods/backflip-mod/backflip-mod.zip",
-          "bytes": 23729,
-          "sha256": "5d0a0e82ad89aa444ab531aecca9913970b9704c317304bce680c8cdf3768bc1"
+          "name": "DriftrinthClient-New.zip",
+          "url": "mods/DriftrinthClient-New.zip",
+          "bytes": 343000,
+          "sha256": "5d0a0e82ad89aa444ab531aecca9913970b9704c317304bce680c8cdf3768bc2"
         }
       ]
     },
