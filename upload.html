@@ -15,12 +15,28 @@
   :root { --bg:#0b0b0d; --surface:#121216; --surface-raised:#17171c; --border:#22222a; --border-strong:#32323d; --text:#ededf0; --text-muted:#9a9aa6; --text-faint:#5f5f6b; --accent:#ff4d55; --accent-hover:#ff6a70; --ok:#6fcf8f; --radius-sm:10px; --radius-lg:18px; --font-sans:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; --font-mono:ui-monospace, Consolas, monospace; }
   body { background:var(--bg); color:var(--text); font-family:var(--font-sans); margin:0; }
   .page { padding-top:48px; }
-  /* Before unlocking, the page is only the password box. */
-  body.gate .header, body.gate .footer, body.gate .step:not(#step1), body.gate #storeCard,
-  body.gate #step1 .step-head, body.gate #login { display:none !important; }
-  body.gate .page { justify-content:center; padding-top:0; padding-bottom:0; min-height:100vh; min-height:100dvh; }
-  body.gate #step1 { background:none; border:0; padding:0; opacity:1; }
-  body.gate #password { height:52px; font-size:1.05rem; text-align:center; }
+  /* Before unlocking, the page is only the sign-in card. */
+  .gate-only { display:none; }
+  body.gate .gate-only { display:block; }
+  body.gate .header, body.gate .footer, body.gate .step:not(#step1), body.gate #storeCard, body.gate #step1 .step-head { display:none !important; }
+  body.gate .page { justify-content:center; align-items:center; padding-top:24px; padding-bottom:24px; min-height:100vh; min-height:100dvh; }
+  body.gate main { width:100%; max-width:380px; }
+  body.gate #step1 { padding:32px 26px 26px; text-align:center; opacity:1; box-shadow:0 30px 80px -30px rgba(255,77,85,.25); animation:rise .5s var(--ease, ease) both; }
+  body.gate #step1 .step-body { gap:14px; }
+  .gate-avatar { width:76px; height:76px; margin:0 auto 14px; border-radius:50%; padding:3px; background:conic-gradient(from 210deg, var(--accent), #ff9a6a, var(--accent)); }
+  .gate-avatar img { display:block; width:100%; height:100%; border-radius:50%; object-fit:cover; border:3px solid var(--surface); box-sizing:border-box; }
+  .gate-title { margin:0; font-size:1.35rem; font-weight:700; letter-spacing:-0.02em; }
+  .gate-sub { margin:6px 0 4px; font-size:0.875rem; color:var(--text-muted); }
+  body.gate .pw-row { flex-direction:column; }
+  .pw-wrap { position:relative; }
+  .pw-wrap svg { position:absolute; left:14px; top:50%; width:17px; height:17px; transform:translateY(-50%); color:var(--text-faint); pointer-events:none; }
+  body.gate #password { height:48px; padding-left:40px; }
+  body.gate #login { height:48px; width:100%; font-size:0.9375rem; }
+  body.gate #loginErr { text-align:left; }
+  .gate-foot { margin-top:16px; font-size:0.75rem; color:var(--text-faint); }
+  .shake { animation:shake .4s ease; }
+  @keyframes shake { 20%,60% { transform:translateX(-6px); } 40%,80% { transform:translateX(6px); } }
+  @keyframes rise { from { opacity:0; transform:translateY(10px); } }
   [hidden] { display:none !important; }
   .stack { display:flex; flex-direction:column; gap:14px; }
   .lede { margin:10px 0 0; color:var(--text-muted); font-size:0.9375rem; }
@@ -117,13 +133,22 @@
         <span class="step-num">1</span>
         <div><h2>Unlock</h2><p class="step-sub" id="s1sub">Enter the upload password.</p></div>
       </div>
+      <div class="gate-only">
+        <div class="gate-avatar"><img src="https://stripes.lol/assets/img/151.png" alt=""></div>
+        <h1 class="gate-title">Driftrinth Mod Store</h1>
+        <p class="gate-sub">Sign in to publish and update mods.</p>
+      </div>
       <div class="step-body">
         <form class="pw-row" id="loginForm">
-          <input id="password" type="password" placeholder="Password" autocomplete="current-password" aria-label="Upload password">
+          <div class="pw-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            <input id="password" type="password" placeholder="Password" autocomplete="current-password" aria-label="Upload password">
+          </div>
           <button class="btn btn-primary" id="login" type="submit">Unlock</button>
         </form>
         <div class="notice err" id="loginErr" hidden></div>
       </div>
+      <p class="gate-only gate-foot">stripes.lol</p>
     </section>
 
     <section class="card step locked" id="step2">
@@ -266,6 +291,7 @@ async function login(e) {
     setStep(packed ? 3 : 2);
   } catch (err) {
     show("loginErr", err.message);
+    $("step1").classList.remove("shake"); void $("step1").offsetWidth; $("step1").classList.add("shake");
     $("password").select();
   } finally { $("login").disabled = false; $("login").textContent = "Unlock"; }
 }
@@ -455,7 +481,7 @@ document.addEventListener("drop", e => {
 });
 
 const saved = session.get();
-if (saved) { $("password").value = saved; login(); } else $("password").focus();
+if (saved) { $("password").value = saved; login(); }
 update();
 </script>
 </body>
