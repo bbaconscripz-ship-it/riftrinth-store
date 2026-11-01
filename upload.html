@@ -44,11 +44,10 @@
   <p class="sub">Upload a mod zip, fill in its details, and it goes live in the store.</p>
 
   <section id="auth">
-    <h2>GitHub token</h2>
-    <p class="hint">Needs a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained token</a> with access to only <code>stripesvr/riftrinth-store</code> and <b>Contents: Read and write</b>. It is kept in this browser only.</p>
-    <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
+    <h2>Password</h2>
+    <input id="password" type="password" placeholder="Upload password" autocomplete="current-password">
     <div class="actions">
-      <button id="saveToken" class="ghost">Save and connect</button>
+      <button id="login" class="ghost">Unlock</button>
       <span id="authStatus" class="hint"></span>
     </div>
   </section>
@@ -79,53 +78,37 @@
 
   <section>
     <h2>In the store</h2>
-    <ul id="mods" class="mods"><li><small>Connect to load the list.</small></li></ul>
+    <ul id="mods" class="mods"><li><small>Unlock to load the list.</small></li></ul>
   </section>
 </main>
 
 <script>
-const OWNER = "stripesvr", REPO = "riftrinth-store", BRANCH = "main";
-const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+// Uploads go through the store's Cloudflare Worker, which checks the password
+// and commits to GitHub. The password and GitHub token live only on the Worker.
+const UPLOAD_API = "https://driftshop-upload.wannabeweirdguy.workers.dev";
 const LIMIT = 100 * 1024 * 1024; // GitHub rejects larger single files
 const $ = id => document.getElementById(id);
-let zipFile = null, manifest = null;
+let zipFile = null, mods = null;
 
-const store = {
-  get(k) { try { return localStorage.getItem(k) || ""; } catch { return ""; } },
-  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
-};
-
-async function gh(path, opts = {}) {
-  const r = await fetch(API + path, {
-    ...opts,
-    headers: { Authorization: `Bearer ${$("token").value.trim()}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-  });
-  if (!r.ok) throw new Error(`${opts.method || "GET"} ${path}: ${r.status} ${(await r.json().catch(() => ({}))).message || ""}`);
-  return r.json();
+async function api(path, fields) {
+  const form = new FormData();
+  form.append("password", $("password").value);
+  for (const [k, v] of Object.entries(fields || {})) form.append(k, v);
+  let r;
+  try { r = await fetch(UPLOAD_API + path, { method: "POST", body: form }); }
+  catch { throw new Error("Couldn't reach the upload server."); }
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.error || `Upload server error ${r.status}`);
+  return body;
 }
 
 const log = (msg, cls) => { const d = document.createElement("div"); d.textContent = msg; if (cls) d.className = cls; $("log").append(d); };
-const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
-
-function b64(bytes) {
-  let s = "";
-  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-  return btoa(s);
-}
-const utf8b64 = text => b64(new TextEncoder().encode(text));
-const b64utf8 = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), c => c.charCodeAt(0)));
-
-async function loadManifest() {
-  const f = await gh(`/contents/manifest.json?ref=${BRANCH}&t=${Date.now()}`);
-  manifest = JSON.parse(b64utf8(f.content));
-  renderMods();
-}
+const status = (el, msg, cls) => { $(el).textContent = ""; $(el).append(Object.assign(document.createElement("span"), { className: cls || "", textContent: msg })); };
 
 function renderMods() {
   const ul = $("mods"); ul.textContent = "";
-  if (!manifest.mods.length) { ul.innerHTML = "<li><small>No mods yet.</small></li>"; return; }
-  for (const m of manifest.mods) {
+  if (!mods.length) { ul.innerHTML = "<li><small>No mods yet.</small></li>"; return; }
+  for (const m of mods) {
     const li = document.createElement("li");
     const info = document.createElement("div");
     info.innerHTML = `<div></div><small></small>`;
@@ -144,15 +127,13 @@ function renderMods() {
   }
 }
 
-async function connect() {
-  $("authStatus").textContent = "Connecting...";
+async function login() {
+  status("authStatus", "Checking...");
   try {
-    const repo = await gh("");
-    if (!repo.permissions?.push) throw new Error("This token can't write to the repository.");
-    store.set("ghToken", $("token").value.trim());
-    await loadManifest();
-    $("authStatus").innerHTML = '<span class="ok">Connected</span>';
-  } catch (e) { $("authStatus").innerHTML = ""; $("authStatus").append(Object.assign(document.createElement("span"), { className: "bad", textContent: e.message })); }
+    mods = (await api("/login")).mods;
+    renderMods();
+    status("authStatus", "Unlocked", "ok");
+  } catch (e) { status("authStatus", e.message, "bad"); }
 }
 
 function pickFile(f) {
@@ -181,70 +162,38 @@ async function repack(file) {
 async function publish() {
   $("log").textContent = "";
   const name = $("name").value.trim(), creator = $("creator").value.trim();
-  if (!manifest) return log("Connect your GitHub token first.", "bad");
+  if (!$("password").value) return log("Enter the password first.", "bad");
   if (!zipFile) return log("Choose a zip first.", "bad");
   if (!name || !creator) return log("Name and creator are required.", "bad");
-  const id = slug(name);
-  if (!/^[A-Za-z0-9][\w.\-]{0,79}$/.test(id)) return log("That name can't be turned into an id. Use letters or numbers.", "bad");
 
   $("publish").disabled = true;
   try {
     log("Repacking zip...");
     const { bytes, patches } = await repack(zipFile);
     if (bytes.length > LIMIT) throw new Error("The zip is over GitHub's 100 MB file limit.");
-    const sha256 = hex(await crypto.subtle.digest("SHA-256", bytes));
     log(`Patch: ${patches.join(", ")}, ${bytes.length} bytes`);
-
-    log("Reading latest store...");
-    const ref = await gh(`/git/ref/heads/${BRANCH}`);
-    const head = await gh(`/git/commits/${ref.object.sha}`);
-    const live = JSON.parse(b64utf8((await gh(`/contents/manifest.json?ref=${ref.object.sha}`)).content));
-
-    const now = new Date().toISOString().replace(/\.\d+Z$/, "Z");
-    const summary = $("summary").value.trim(), about = $("about").value.trim();
-    // Keep an existing entry's id (it may differ in case) so updates replace it.
-    const prev = live.mods.find(m => m.id.toLowerCase() === id || m.name.toLowerCase() === name.toLowerCase());
-    const modId = prev ? prev.id : id;
-    const path = `mods/${modId}/${modId}.zip`;
-    const entry = {
-      id: modId, name, creator, version: $("version").value.trim() || "1.0.0",
-      summary, description: about || summary,
-      tags: $("tags").value.split(",").map(t => t.trim()).filter(Boolean),
-      updated: now,
-      files: [{ name: `${modId}.zip`, url: path, bytes: bytes.length, sha256 }],
-    };
-    const mods = live.mods.filter(m => m !== prev);
-    if (prev) mods.splice(live.mods.indexOf(prev), 0, entry); else mods.push(entry);
-    const tree = [
-      { path, mode: "100644", type: "blob", sha: (await gh("/git/blobs", { method: "POST", body: JSON.stringify({ content: b64(bytes), encoding: "base64" }) })).sha },
-      { path: "manifest.json", mode: "100644", type: "blob", sha: (await gh("/git/blobs", { method: "POST", body: JSON.stringify({ content: utf8b64(JSON.stringify({ ...live, updated: now, mods }, null, 2) + "\n"), encoding: "base64" }) })).sha },
-    ];
-    // Drop the old zip if an earlier entry lived at a different path.
-    const oldUrl = prev?.files?.[0]?.url;
-    if (oldUrl && oldUrl !== path) tree.push({ path: oldUrl, mode: "100644", type: "blob", sha: null });
-
-    log("Publishing...");
-    const newTree = await gh("/git/trees", { method: "POST", body: JSON.stringify({ base_tree: head.tree.sha, tree }) });
-    const commit = await gh("/git/commits", { method: "POST", body: JSON.stringify({ message: `${prev ? "Update" : "Add"} ${name} ${entry.version}`, tree: newTree.sha, parents: [ref.object.sha] }) });
-    await gh(`/git/refs/heads/${BRANCH}`, { method: "PATCH", body: JSON.stringify({ sha: commit.sha }) });
-
-    log(`${prev ? "Updated" : "Released"} ${name}. It shows in Driftrinth after Pages rebuilds, usually within a few minutes.`, "ok");
+    log("Releasing...");
+    const res = await api("/upload", {
+      name, creator, version: $("version").value.trim(), tags: $("tags").value,
+      summary: $("summary").value, about: $("about").value,
+      file: new File([bytes], "mod.zip", { type: "application/zip" }),
+    });
+    log(`${res.updated ? "Updated" : "Released"} ${name}. It shows in Driftrinth after Pages rebuilds, usually within a few minutes.`, "ok");
     zipFile = null; $("file").value = ""; $("fileInfo").textContent = "It needs a matching .utoc, .ucas and .pak";
-    manifest = { ...live, mods }; renderMods();
+    mods = res.mods; renderMods();
   } catch (e) {
-    log(e.message.includes("422") ? `${e.message}\nThe store changed while publishing. Try again.` : e.message, "bad");
+    log(/409/.test(e.message) ? `${e.message}\nThe store changed while releasing. Try again.` : e.message, "bad");
   } finally { $("publish").disabled = false; }
 }
 
-$("saveToken").onclick = connect;
+$("login").onclick = login;
+$("password").onkeydown = e => { if (e.key === "Enter") login(); };
 $("publish").onclick = publish;
 $("drop").onclick = () => $("file").click();
 $("file").onchange = e => pickFile(e.target.files[0]);
 $("drop").ondragover = e => { e.preventDefault(); $("drop").classList.add("over"); };
 $("drop").ondragleave = () => $("drop").classList.remove("over");
 $("drop").ondrop = e => { e.preventDefault(); $("drop").classList.remove("over"); pickFile(e.dataTransfer.files[0]); };
-$("token").value = store.get("ghToken");
-if ($("token").value) connect();
 </script>
 </body>
 </html>

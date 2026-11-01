@@ -26,4 +26,12 @@ The folder or `.zip` needs a matching `.utoc`, `.ucas` and `.pak`. Run it from y
 
 ## Publish from the browser
 
-Open `upload.html` on the store site (for example `https://driftshop.stripes.lol/upload.html`). Paste a [fine-grained GitHub token](https://github.com/settings/personal-access-tokens/new) limited to this repository with **Contents: Read and write**, drop the mod zip, fill in the details and press **Release**. The page repacks the zip, works out its size and sha256, and commits it with the manifest update, just like `add_mod.py`. The token stays in your browser and is never stored in the repository.
+Open `upload.html` on the store site (for example `https://driftshop.stripes.lol/upload.html`), enter the upload password, drop the mod zip, fill in the details and press **Release**. The page repacks the zip and sends it to the upload Worker in `worker/`, which checks the password, works out the size and sha256, and commits the zip and manifest entry, just like `add_mod.py`.
+
+The password and the GitHub token are Cloudflare Worker secrets. They are never in this repository or the page. `.github/workflows/deploy-worker.yml` deploys the Worker to `https://driftshop-upload.wannabeweirdguy.workers.dev` and needs these repository secrets (**Settings > Secrets and variables > Actions**):
+
+- `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, the same as Nonce-Gen uses
+- `UPLOAD_PASSWORD`, the password people type on the page
+- `STORE_GITHUB_TOKEN`, a [fine-grained token](https://github.com/settings/personal-access-tokens/new) limited to this repository with **Contents: Read and write**
+
+To change the password, update `UPLOAD_PASSWORD` and re-run the workflow from the **Actions** tab.
