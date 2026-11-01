@@ -5,10 +5,10 @@ A mod store for [Driftrinth](https://github.com/stripesvr), hosted free on GitHu
 ## Links
 
 - **Store address** (enter in Driftrinth under **Settings > Mod store**): https://driftshop.stripes.lol/
-- **Upload page:** https://driftshop.stripes.lol/upload.html
+- **Mod store site (submit, review and publish mods):** https://driftshop.stripes.lol/ (`/upload.html` goes to the same page)
 - **Manifest:** https://driftshop.stripes.lol/manifest.json
 
-Until the `driftshop.stripes.lol` DNS is set up, use https://stripesvr.github.io/riftrinth-store/ (and add `upload.html` or `manifest.json` to it).
+Until the `driftshop.stripes.lol` DNS is set up, use https://stripesvr.github.io/riftrinth-store/ (add `manifest.json` to it for the manifest).
 
 ## Publish it
 
@@ -34,7 +34,9 @@ The folder or `.zip` needs a matching `.utoc`, `.ucas` and `.pak`. Run it from y
 
 ## Publish from the browser
 
-Open `upload.html` on the store site (for example `https://driftshop.stripes.lol/upload.html`), enter the upload password, drop the mod zip, fill in the details and press **Release**. The page repacks the zip and sends it to the upload Worker in `worker/`, which checks the password, works out the size and sha256, and commits the zip and manifest entry, just like `add_mod.py`.
+Open the store site (`https://driftshop.stripes.lol/`), enter the upload password, drop the mod zip, fill in the details and press **Release**. The page repacks the zip and sends it to the upload Worker in `worker/`, which checks the password, works out the size and sha256, and commits the zip and manifest entry, just like `add_mod.py`.
+
+Anyone can press **Continue as guest** to submit a mod instead. Submissions wait on the `submissions` branch, which GitHub Pages doesn't serve. After signing in with the password, the **Submissions** card lists them with **Approve and release**, **Download** and **Reject**. Guest zips are limited to 50 MB, and at most 50 can wait at once.
 
 The password and the GitHub token are Cloudflare Worker secrets. They are never in this repository or the page. `.github/workflows/deploy-worker.yml` deploys the Worker to `https://driftshop-upload.wannabeweirdguy.workers.dev` and needs these repository secrets (**Settings > Secrets and variables > Actions**):
 
