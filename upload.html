@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Publish a Mod</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root { --bg:#16171b; --panel:#1f2026; --field:#2a2b33; --line:#34353e; --text:#f1f1f4; --muted:#9a9aa6; --accent:#4f8cff; --ok:#3ecf8e; --bad:#ff6b6b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:26px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:0 0 12px; }
+  p.sub { color:var(--muted); margin:0 0 24px; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:16px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:12px 0 4px; }
+  input, textarea { width:100%; background:var(--field); color:var(--text); border:1px solid var(--line); border-radius:9px; padding:10px 12px; font:inherit; }
+  textarea { min-height:90px; resize:vertical; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; }
+  @media (max-width:560px) { .row { grid-template-columns:1fr; } }
+  .drop { border:2px dashed var(--line); border-radius:12px; padding:28px 12px; text-align:center; color:var(--muted); cursor:pointer; }
+  .drop.over { border-color:var(--accent); color:var(--text); }
+  .drop strong { color:var(--text); }
+  button { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:11px 18px; font:600 15px system-ui, sans-serif; cursor:pointer; }
+  button.ghost { background:transparent; border:1px solid var(--line); color:var(--text); }
+  button:disabled { opacity:.5; cursor:default; }
+  .actions { display:flex; gap:10px; align-items:center; margin-top:16px; flex-wrap:wrap; }
+  #log { white-space:pre-wrap; font:13px ui-monospace, Consolas, monospace; color:var(--muted); margin-top:12px; }
+  .ok { color:var(--ok); } .bad { color:var(--bad); }
+  ul.mods { list-style:none; margin:0; padding:0; }
+  ul.mods li { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-top:1px solid var(--line); }
+  ul.mods li:first-child { border-top:0; }
+  ul.mods small { color:var(--muted); }
+  ul.mods button { padding:6px 12px; font-size:13px; }
+  .hint { font-size:13px; color:var(--muted); }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Publish a Mod</h1>
+  <p class="sub">Upload a mod zip, fill in its details, and it goes live in the store.</p>
+
+  <section id="auth">
+    <h2>GitHub token</h2>
+    <p class="hint">Needs a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained token</a> with access to only <code>stripesvr/riftrinth-store</code> and <b>Contents: Read and write</b>. It is kept in this browser only.</p>
+    <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
+    <div class="actions">
+      <button id="saveToken" class="ghost">Save and connect</button>
+      <span id="authStatus" class="hint"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>New mod or update</h2>
+    <div id="drop" class="drop"><strong>Drop a .zip here</strong> or click to choose<br><span id="fileInfo">It needs a matching .utoc, .ucas and .pak</span></div>
+    <input id="file" type="file" accept=".zip" hidden>
+    <div class="row">
+      <div><label for="name">Name</label><input id="name" placeholder="My Mod"></div>
+      <div><label for="creator">Creator</label><input id="creator" placeholder="MeiMei"></div>
+    </div>
+    <div class="row">
+      <div><label for="version">Version</label><input id="version" value="1.0.0"></div>
+      <div><label for="tags">Tags (comma separated)</label><input id="tags" placeholder="visuals, fun"></div>
+    </div>
+    <label for="summary">Description (short, shown on the card)</label>
+    <input id="summary" placeholder="What it does">
+    <label for="about">About (longer, shown on the mod page)</label>
+    <textarea id="about" placeholder="Details, credits, how to use it"></textarea>
+    <p class="hint">Using the same name as an existing mod updates it instead of adding a second one.</p>
+    <div class="actions">
+      <button id="publish">Release</button>
+      <span id="status" class="hint"></span>
+    </div>
+    <div id="log"></div>
+  </section>
+
+  <section>
+    <h2>In the store</h2>
+    <ul id="mods" class="mods"><li><small>Connect to load the list.</small></li></ul>
+  </section>
+</main>
+
+<script>
+const OWNER = "stripesvr", REPO = "riftrinth-store", BRANCH = "main";
+const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+const LIMIT = 100 * 1024 * 1024; // GitHub rejects larger single files
+const $ = id => document.getElementById(id);
+let zipFile = null, manifest = null;
+
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ""; } catch { return ""; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+async function gh(path, opts = {}) {
+  const r = await fetch(API + path, {
+    ...opts,
+    headers: { Authorization: `Bearer ${$("token").value.trim()}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+  });
+  if (!r.ok) throw new Error(`${opts.method || "GET"} ${path}: ${r.status} ${(await r.json().catch(() => ({}))).message || ""}`);
+  return r.json();
+}
+
+const log = (msg, cls) => { const d = document.createElement("div"); d.textContent = msg; if (cls) d.className = cls; $("log").append(d); };
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+
+function b64(bytes) {
+  let s = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+const utf8b64 = text => b64(new TextEncoder().encode(text));
+const b64utf8 = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), c => c.charCodeAt(0)));
+
+async function loadManifest() {
+  const f = await gh(`/contents/manifest.json?ref=${BRANCH}&t=${Date.now()}`);
+  manifest = JSON.parse(b64utf8(f.content));
+  renderMods();
+}
+
+function renderMods() {
+  const ul = $("mods"); ul.textContent = "";
+  if (!manifest.mods.length) { ul.innerHTML = "<li><small>No mods yet.</small></li>"; return; }
+  for (const m of manifest.mods) {
+    const li = document.createElement("li");
+    const info = document.createElement("div");
+    info.innerHTML = `<div></div><small></small>`;
+    info.firstChild.textContent = m.name;
+    info.lastChild.textContent = `v${m.version} by ${m.creator}`;
+    const btn = document.createElement("button");
+    btn.className = "ghost"; btn.textContent = "Update";
+    btn.onclick = () => {
+      $("name").value = m.name; $("creator").value = m.creator; $("version").value = m.version;
+      $("tags").value = (m.tags || []).join(", "); $("summary").value = m.summary || "";
+      $("about").value = m.description && m.description !== m.summary ? m.description : "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      $("status").textContent = `Editing ${m.name}. Drop the new zip to release it.`;
+    };
+    li.append(info, btn); ul.append(li);
+  }
+}
+
+async function connect() {
+  $("authStatus").textContent = "Connecting...";
+  try {
+    const repo = await gh("");
+    if (!repo.permissions?.push) throw new Error("This token can't write to the repository.");
+    store.set("ghToken", $("token").value.trim());
+    await loadManifest();
+    $("authStatus").innerHTML = '<span class="ok">Connected</span>';
+  } catch (e) { $("authStatus").innerHTML = ""; $("authStatus").append(Object.assign(document.createElement("span"), { className: "bad", textContent: e.message })); }
+}
+
+function pickFile(f) {
+  if (!f) return;
+  if (!/\.zip$/i.test(f.name)) { $("fileInfo").textContent = "That isn't a .zip file."; return; }
+  zipFile = f; $("fileInfo").textContent = `${f.name} (${(f.size / 1024).toFixed(0)} KB)`;
+}
+
+// Same rules as add_mod.py: keep only complete .utoc/.ucas/.pak sets, flattened into a fresh zip.
+async function repack(file) {
+  const src = await JSZip.loadAsync(file);
+  const stems = {};
+  src.forEach((path, entry) => {
+    if (entry.dir) return;
+    const base = path.split("/").pop(), m = base.match(/^(.*)\.(utoc|ucas|pak)$/i);
+    if (m) (stems[m[1]] ||= {})[m[2].toLowerCase()] = entry;
+  });
+  const complete = Object.entries(stems).filter(([, fs]) => Object.keys(fs).length === 3);
+  if (!complete.length) throw new Error("No complete patch found. The zip needs a .utoc, .ucas and .pak with the same name.");
+  const out = new JSZip();
+  for (const [stem, fs] of complete)
+    for (const [ext, entry] of Object.entries(fs)) out.file(`${stem}.${ext}`, await entry.async("uint8array"));
+  return { bytes: await out.generateAsync({ type: "uint8array", compression: "DEFLATE" }), patches: complete.map(([s]) => s) };
+}
+
+async function publish() {
+  $("log").textContent = "";
+  const name = $("name").value.trim(), creator = $("creator").value.trim();
+  if (!manifest) return log("Connect your GitHub token first.", "bad");
+  if (!zipFile) return log("Choose a zip first.", "bad");
+  if (!name || !creator) return log("Name and creator are required.", "bad");
+  const id = slug(name);
+  if (!/^[A-Za-z0-9][\w.\-]{0,79}$/.test(id)) return log("That name can't be turned into an id. Use letters or numbers.", "bad");
+
+  $("publish").disabled = true;
+  try {
+    log("Repacking zip...");
+    const { bytes, patches } = await repack(zipFile);
+    if (bytes.length > LIMIT) throw new Error("The zip is over GitHub's 100 MB file limit.");
+    const sha256 = hex(await crypto.subtle.digest("SHA-256", bytes));
+    log(`Patch: ${patches.join(", ")}, ${bytes.length} bytes`);
+
+    log("Reading latest store...");
+    const ref = await gh(`/git/ref/heads/${BRANCH}`);
+    const head = await gh(`/git/commits/${ref.object.sha}`);
+    const live = JSON.parse(b64utf8((await gh(`/contents/manifest.json?ref=${ref.object.sha}`)).content));
+
+    const now = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+    const summary = $("summary").value.trim(), about = $("about").value.trim();
+    // Keep an existing entry's id (it may differ in case) so updates replace it.
+    const prev = live.mods.find(m => m.id.toLowerCase() === id || m.name.toLowerCase() === name.toLowerCase());
+    const modId = prev ? prev.id : id;
+    const path = `mods/${modId}/${modId}.zip`;
+    const entry = {
+      id: modId, name, creator, version: $("version").value.trim() || "1.0.0",
+      summary, description: about || summary,
+      tags: $("tags").value.split(",").map(t => t.trim()).filter(Boolean),
+      updated: now,
+      files: [{ name: `${modId}.zip`, url: path, bytes: bytes.length, sha256 }],
+    };
+    const mods = live.mods.filter(m => m !== prev);
+    if (prev) mods.splice(live.mods.indexOf(prev), 0, entry); else mods.push(entry);
+    const tree = [
+      { path, mode: "100644", type: "blob", sha: (await gh("/git/blobs", { method: "POST", body: JSON.stringify({ content: b64(bytes), encoding: "base64" }) })).sha },
+      { path: "manifest.json", mode: "100644", type: "blob", sha: (await gh("/git/blobs", { method: "POST", body: JSON.stringify({ content: utf8b64(JSON.stringify({ ...live, updated: now, mods }, null, 2) + "\n"), encoding: "base64" }) })).sha },
+    ];
+    // Drop the old zip if an earlier entry lived at a different path.
+    const oldUrl = prev?.files?.[0]?.url;
+    if (oldUrl && oldUrl !== path) tree.push({ path: oldUrl, mode: "100644", type: "blob", sha: null });
+
+    log("Publishing...");
+    const newTree = await gh("/git/trees", { method: "POST", body: JSON.stringify({ base_tree: head.tree.sha, tree }) });
+    const commit = await gh("/git/commits", { method: "POST", body: JSON.stringify({ message: `${prev ? "Update" : "Add"} ${name} ${entry.version}`, tree: newTree.sha, parents: [ref.object.sha] }) });
+    await gh(`/git/refs/heads/${BRANCH}`, { method: "PATCH", body: JSON.stringify({ sha: commit.sha }) });
+
+    log(`${prev ? "Updated" : "Released"} ${name}. It shows in Driftrinth after Pages rebuilds, usually within a few minutes.`, "ok");
+    zipFile = null; $("file").value = ""; $("fileInfo").textContent = "It needs a matching .utoc, .ucas and .pak";
+    manifest = { ...live, mods }; renderMods();
+  } catch (e) {
+    log(e.message.includes("422") ? `${e.message}\nThe store changed while publishing. Try again.` : e.message, "bad");
+  } finally { $("publish").disabled = false; }
+}
+
+$("saveToken").onclick = connect;
+$("publish").onclick = publish;
+$("drop").onclick = () => $("file").click();
+$("file").onchange = e => pickFile(e.target.files[0]);
+$("drop").ondragover = e => { e.preventDefault(); $("drop").classList.add("over"); };
+$("drop").ondragleave = () => $("drop").classList.remove("over");
+$("drop").ondrop = e => { e.preventDefault(); $("drop").classList.remove("over"); pickFile(e.dataTransfer.files[0]); };
+$("token").value = store.get("ghToken");
+if ($("token").value) connect();
+</script>
+</body>
+</html>

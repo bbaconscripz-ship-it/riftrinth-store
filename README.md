@@ -23,3 +23,7 @@ python add_mod.py "C:\path\to\MyMod" --name "My Mod" --creator stripesvr --versi
 ```
 
 The folder or `.zip` needs a matching `.utoc`, `.ucas` and `.pak`. Run it from your clone of this repository, since it writes `mods/` and `manifest.json` next to itself. Run the command again with the same name to update a mod, then push the changes.
+
+## Publish from the browser
+
+Open `upload.html` on the store site (for example `https://driftshop.stripes.lol/upload.html`). Paste a [fine-grained GitHub token](https://github.com/settings/personal-access-tokens/new) limited to this repository with **Contents: Read and write**, drop the mod zip, fill in the details and press **Release**. The page repacks the zip, works out its size and sha256, and commits it with the manifest update, just like `add_mod.py`. The token stays in your browser and is never stored in the repository.
