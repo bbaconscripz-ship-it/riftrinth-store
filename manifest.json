@@ -1,6 +1,6 @@
 {
   "name": "Stripes Mod Store",
-  "updated": "2026-10-31T02:01:28Z",
+  "updated": "2026-11-01T05:12:22Z",
   "mods": [
     {
       "id": "robot-playermodel",
@@ -17,24 +17,6 @@
           "url": "mods/robot-playermodel/robot-playermodel.zip",
           "bytes": 508995,
           "sha256": "91ee32369d36a9b301f579930933901e3d8f3c32e9adc973bc3af391b4e34911"
-        }
-      ]
-    },
-    {
-      "id": "Driftrinth-Client",
-      "name": "Driftrinth Client",
-      "creator": "VirtualStripes",
-      "version": "4.3",
-      "summary": "Le Best Mod Menu For Orion Drift",
-      "description": "Best mod menu for OD of all time.",
-      "tags": [],
-      "updated": "2026-10-31T23:09:32Z",
-      "files": [
-        {
-          "name": "DriftrinthClient-New.zip",
-          "url": "mods/DriftrinthClient-New.zip",
-          "bytes": 343000,
-          "sha256": "5d0a0e82ad89aa444ab531aecca9913970b9704c317304bce680c8cdf3768bc2"
         }
       ]
     },
@@ -115,6 +97,24 @@
           "url": "mods/meimei-client/meimei-client.zip",
           "bytes": 500951,
           "sha256": "3adbf155dac631dbc45c9ab6e6178f231375a7b2ac388ca6773f3df4e2f43849"
+        }
+      ]
+    },
+    {
+      "id": "Driftrinth-Client",
+      "name": "Driftrinth Client",
+      "creator": "VirtualStripes",
+      "version": "4.3",
+      "summary": "Le Best Mod Menu For Orion Drift",
+      "description": "Best mod menu for OD of all time.",
+      "tags": [],
+      "updated": "2026-11-01T05:12:22Z",
+      "files": [
+        {
+          "name": "Driftrinth-Client.zip",
+          "url": "mods/Driftrinth-Client/Driftrinth-Client.zip",
+          "bytes": 353175,
+          "sha256": "142ecd0d6dbcc2ec2303f802c92f573745921009d2aa3fa4ef9c93e73b042fb2"
         }
       ]
     }
